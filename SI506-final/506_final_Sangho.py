@@ -69,16 +69,15 @@ baseurl = 'https://graph.facebook.com/me/feed'
 url_params = {}
 url_params["fields"] = "message, likes, comments"
 url_params["limit"] = 30
+thirty_post = getFacebookPost(baseurl, params = url_params)
 
-# print(getFacebookPost(baseurl, params = url_params))
 
 s = open('stopwords_list.txt', 'r')
 stopwords_list=[]
-for i in s.readlines()[0:173]:
+for i in s.readlines()[0:174]:
     stopwords_list.append(i[0:-1])
 s.close()
 
-print(stopwords_list)
 
 class Post():
     def __init__(self, post_dict={}):
@@ -88,27 +87,63 @@ class Post():
             self.message = ''
         if 'comments' in post_dict:
             self.comments = post_dict['comments']['data']
+            self.comments_cnt = len(post_dict['comments']['data'])
         else:
             self.comments = []
         if 'likes' in post_dict:
             self.likes = post_dict['likes']['data']
+            self.likes_cnt = len(post_dict['likes']['data'])
         else:
             self.likes = []
 
 
-    def positive(self):
-        p=[]
-        p_num=0
+    def __str__(self):
+        return "This post has {} comments and {} likes".format(self.comments_cnt, self.likes_cnt)
+
+
+    def words_list(self):
+        n = []
         for i in self.message.split():
-            if i in pos_ws:
-                p_num += 1
-        return p_num
+            if i not in stopwords_list:
+                n.append(i)
+        return n
 
-
-    def negative(self):
-        n=[]
+    def words_ratio(self):
+        n = []
         n_num=0
         for i in self.message.split():
-            if i in neg_ws:
+            if i not in stopwords_list:
                 n_num += 1
-        return n_num
+        t = []
+        t_num=0
+        for i in self.message.split():
+            t_num += 1
+        return n_num/t_num
+
+# Create a list of class 30 Post
+post_list = []
+for i in thirty_post["data"]:
+    post_list.append(Post(i))
+
+thirty_post_dict ={}
+for i in post_list:
+    n = i.words_list()
+    for l in n:
+        if l not in thirty_post_dict.keys():
+            thirty_post_dict[l] = 1
+        else:
+            thirty_post_dict[l] += 1
+
+def common_word(dict):
+    max_v = max(dict.values())
+    k=list(dict.keys())
+    max_l = []
+    for i in k:
+        if dict[i] == max_v:
+            max_l.append(i)
+    return max_l
+
+    # return k[v.index(max(v))]
+
+most_common_word = common_word(thirty_post_dict)
+print(most_common_word)
