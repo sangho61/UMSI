@@ -1,4 +1,6 @@
-
+# SI506 Final Project
+# Option 1:Facebook & iTunes
+# Sangho Eum, sanghoe@umich.edu
 
 import json
 import webbrowser
@@ -63,47 +65,50 @@ def getFacebookPost(baseURL, params = {}):
 
 
 
-
 baseurl = 'https://graph.facebook.com/me/feed'
 url_params = {}
 url_params["fields"] = "message, likes, comments"
 url_params["limit"] = 30
 
-print(getFacebookPost(baseurl, params = url_params))
+# print(getFacebookPost(baseurl, params = url_params))
+
+s = open('stopwords_list.txt', 'r')
+stopwords_list=[]
+for i in s.readlines()[0:173]:
+    stopwords_list.append(i[0:-1])
+s.close()
+
+print(stopwords_list)
+
+class Post():
+    def __init__(self, post_dict={}):
+        if 'message' in post_dict:
+            self.message = post_dict['message']
+        else:
+            self.message = ''
+        if 'comments' in post_dict:
+            self.comments = post_dict['comments']['data']
+        else:
+            self.comments = []
+        if 'likes' in post_dict:
+            self.likes = post_dict['likes']['data']
+        else:
+            self.likes = []
 
 
-# class Post():
-#     def __init__(self, post_dict={}):
-#         if 'message' in post_dict:
-#             self.message = post_dict['message']
-#         else:
-#             self.message = ''
-#         if 'comments' in post_dict:
-#             self.comments = post_dict['comments']['data']
-#         else:
-#             self.comments = []
-#         if 'likes' in post_dict:
-#             self.likes = post_dict['likes']['data']
-#         else:
-#             self.likes = []
-#
-#
-#     def positive(self):
-#         p=[]
-#         p_num=0
-#         for i in self.message.split():
-#             if i in pos_ws:
-#                 p_num += 1
-#         return p_num
-#
-#
-#     def negative(self):
-#         n=[]
-#         n_num=0
-#         for i in self.message.split():
-#             if i in neg_ws:
-#                 n_num += 1
-#         return n_num
-#
-#     def emo_score(self):
-#         return self.positive() - self.negative()
+    def positive(self):
+        p=[]
+        p_num=0
+        for i in self.message.split():
+            if i in pos_ws:
+                p_num += 1
+        return p_num
+
+
+    def negative(self):
+        n=[]
+        n_num=0
+        for i in self.message.split():
+            if i in neg_ws:
+                n_num += 1
+        return n_num
