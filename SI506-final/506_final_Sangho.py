@@ -4,14 +4,18 @@
 
 import json
 import webbrowser
+import csv
+import requests
 from requests_oauthlib import OAuth2Session
 from requests_oauthlib.compliance_fixes import facebook_compliance_fix
 from your_app_data import APP_ID, APP_SECRET
 
 
+#############FACEBOOK###########################
 # Set the Global facebook_session varible for FB access below
 facebook_session = False
 
+# Creating Cache for facebook
 CACHE_FNAME = "facebook_cache.json"
 
 try:
@@ -22,16 +26,16 @@ try:
 except:
     CACHE_DICTION = {}
 
-def params_unique_combination(baseurl, params):
+# Define a function for a API request to Facebook with caching.
+def params_unique_combination_fb(baseurl, params):
     alphabetized_keys = sorted(params.keys())
     res = []
     for k in alphabetized_keys:
         res.append("{}={}".format(k, params[k]))
     return baseurl +"?" + "&".join(res)
 
-# Function for a request to Facebook.
 def getFacebookPost(baseURL, params = {}):
-    unique_ident = params_unique_combination(baseURL, params)
+    unique_ident = params_unique_combination_fb(baseURL, params)
     if unique_ident in CACHE_DICTION:
         print("getting cached data...")
         return CACHE_DICTION[unique_ident]
@@ -63,22 +67,21 @@ def getFacebookPost(baseURL, params = {}):
         print(facebook_text)
         return CACHE_DICTION[unique_ident]
 
-
-
+# Set the base url and parameters for 30 posts and store 30 posts data to variable thirty_post
 baseurl = 'https://graph.facebook.com/me/feed'
 url_params = {}
 url_params["fields"] = "message, likes, comments"
 url_params["limit"] = 30
 thirty_post = getFacebookPost(baseurl, params = url_params)
 
-
+# make a stopwords_list
 s = open('stopwords_list.txt', 'r')
 stopwords_list=[]
 for i in s.readlines()[0:174]:
     stopwords_list.append(i[0:-1])
 s.close()
 
-
+# Define a class Post
 class Post():
     def __init__(self, post_dict={}):
         if 'message' in post_dict:
@@ -96,11 +99,11 @@ class Post():
         else:
             self.likes = []
 
-
+# __str__ method
     def __str__(self):
         return "This post has {} comments and {} likes".format(self.comments_cnt, self.likes_cnt)
 
-
+# Method returning a list of all the words
     def words_list(self):
         n = []
         for i in self.message.split():
@@ -108,6 +111,7 @@ class Post():
                 n.append(i)
         return n
 
+# Method returning ratio of non-stopword to total-words
     def words_ratio(self):
         n = []
         n_num=0
@@ -134,6 +138,7 @@ for i in post_list:
         else:
             thirty_post_dict[l] += 1
 
+# Define function for finding the most common words except stopwords
 def common_word(dict):
     max_v = max(dict.values())
     k=list(dict.keys())
@@ -143,7 +148,75 @@ def common_word(dict):
             max_l.append(i)
     return max_l
 
-    # return k[v.index(max(v))]
-
 most_common_word = common_word(thirty_post_dict)
+
+
+############################ iTunes##############################
+
+# Creating Cache for iTunes
+CACHE_FNAME_itunes = "itunes_cache.json"
+
+try:
+    f1 = open(CACHE_FNAME_itunes, "r")
+    fstr1 = f1.read()
+    CACHE_DICTION1 = json.loads(fstr1)
+    f1.close()
+except:
+    CACHE_DICTION1 = {}
+
+
+def params_unique_combination(baseurl, params_d, private_keys=["api_key"]):
+    alphabetized_keys = sorted(params_d.keys())
+    res = []
+    for k in alphabetized_keys:
+        if k not in private_keys:
+            res.append("{}-{}".format(k, params_d[k]))
+    return baseurl + "_".join(res)
+
+def get_from_itunes(name, mtype="song"):
+    baseurl = "https://itunes.apple.com/search"
+    parameters = {}
+    parameters["term"] = name
+    parameters["entity"] = mtype
+    itunes_unique = params_unique_combination(baseurl, parameters)
+    if itunes_unique in CACHE_DICTION1:
+        print("Loading a cached iTune API data")
+        itunes_data = CACHE_DICTION1[itunes_unique]
+    else:
+        print("Making a request to iTunes API")
+        itunes_resp = requests.get(baseurl, params = parameters)
+        itunes_resp_data = itunes_resp.text
+        itunes_data = json.loads(itunes_resp_data)
+        CACHE_DICTION1[itunes_unique] = itunes_data
+        cache_diction_json = json.dumps(CACHE_DICTION1)
+        itunes_file = open(CACHE_FNAME_itunes, 'w')
+        itunes_file.write(cache_diction_json)
+        itunes_file.close()
+    return itunes_data
+
+# Define Song class
+
+class Song(object):
+    def __init__(self, itunes_dict):
+        self.title = itunes_dict["trackName"]
+        self.artist = itunes_dict["artistName"]
+        self.track_duration = itunes_dict["trackTimeMillis"]
+        self.album = itunes_dict["collectionName"]
+        self.genre = itunes_dict["primaryGenreName"]
+        self.track_url = itunes_dict["trackViewUrl"]
+
+# __str__ method
+    def __str__(self):
+        return "This song is {} by artist: {} in {} Album.(Duration: {})".format(self.title, self.artist, self.album, self.track_duration)
+
+    def track_length(self):
+        return self.track_duration
+
+
+# Create a list of instances of class Song using most common_word
+
+itunes_list = get_from_itunes(most_common_word)
+
+
+print(itunes_list)
 print(most_common_word)
