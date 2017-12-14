@@ -215,8 +215,23 @@ class Song(object):
 
 # Create a list of instances of class Song using most common_word
 
-itunes_list = get_from_itunes(most_common_word)
+itunes_data = get_from_itunes(most_common_word)
+itunes_list = []
 
+for i in itunes_data["results"]:
+    itunes_list.append(Song(i))
 
-print(itunes_list)
-print(most_common_word)
+# Sorted itunes_list by track_length
+sorted_itunes = sorted(itunes_list, key =lambda x: x.track_length(), reverse= True)
+
+# Define function creating CSV files
+def write_csv(songs, file_name ="songs_list.csv"):
+    output = open(file_name, "w")
+    col_name = ["song_title", "artist", "length", "album" ,"genre"]
+    transfer = csv.DictWriter(output, fieldnames = col_name, delimiter=",")
+    transfer.writeheader()
+    for i in songs:
+        transfer.writerow({"song_title":i.title, "artist": i.artist, "length": i.track_duration, "album": i.album, "genre":  i.genre})
+    output.close()
+
+print(write_csv(itunes_list, "sangho.csv"))
