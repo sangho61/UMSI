@@ -124,10 +124,15 @@ class Post():
             t_num += 1
         return n_num/t_num
 
-# Create a list of class 30 Post
+# Create a list of 30 instances class Post
 post_list = []
 for i in thirty_post["data"]:
     post_list.append(Post(i))
+
+print(post_list[3].__str__())
+print(post_list[3].words_list())
+print(post_list[3].words_ratio())
+
 
 thirty_post_dict ={}
 for i in post_list:
@@ -154,7 +159,7 @@ most_common_word = common_word(thirty_post_dict)
 ############################ iTunes##############################
 
 # Creating Cache for iTunes
-CACHE_FNAME_itunes = "itunes_cache.json"
+CACHE_FNAME_itunes = "SI506finalproject_cache.json"
 
 try:
     f1 = open(CACHE_FNAME_itunes, "r")
@@ -194,6 +199,7 @@ def get_from_itunes(name, mtype="song"):
         itunes_file.close()
     return itunes_data
 
+
 # Define Song class
 
 class Song(object):
@@ -221,6 +227,9 @@ itunes_list = []
 for i in itunes_data["results"]:
     itunes_list.append(Song(i))
 
+print(itunes_list[3].__str__())
+print(itunes_list[3].track_length())
+
 # Sorted itunes_list by track_length
 sorted_itunes = sorted(itunes_list, key =lambda x: x.track_length(), reverse= True)
 
@@ -234,4 +243,4 @@ def write_csv(songs, file_name ="songs_list.csv"):
         transfer.writerow({"song_title":i.title, "artist": i.artist, "length": i.track_duration, "album": i.album, "genre":  i.genre})
     output.close()
 
-print(write_csv(itunes_list, "sangho.csv"))
+write_csv(itunes_list, "sangho.csv")
