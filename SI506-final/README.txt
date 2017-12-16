@@ -19,7 +19,7 @@ Both of parts make cache files.
 - SI506_finalproject.py
 - SI506finalproject_cache.json
 - facebook_cache.json
-- sangho.csv.csv (sample results)
+- sangho.csv (sample results)
 - stopwords_list.txt (stopwords list)
 - your_app_data.py (app data for Facebook)
 - README.txt
@@ -97,8 +97,8 @@ END REQUIREMENTS LIST
 * Explain in a couple sentences what should happen as a RESULT of your code running: what CSV or text file will it create? What information does it contain? What should we expect from it in terms of how many lines, how many columns, which headers...?
 
 	- It will create a csv file “sangho.csv”
-	- # lines: 1 line for header, # lines for # songs
-	- # columns: Track Title, Artist, #####, ####..
+	- 51 lines: 1 line for header, 50 lines for 50 songs
+	- 5 columns: song title, artist, length, album, genre
 
 
 * Make sure you include a SAMPLE version of the file this project outputs (this should be in your list of submitted files above!).
