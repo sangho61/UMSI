@@ -1,0 +1,79 @@
+FINAL PROJECT PLAN QUESTIONS
+
+Please answer the questions briefly/clearly in this document. If you would prefer to upload a PDF file, that is also OK.
+
+Final Project requirements and guidelines: https://paper.dropbox.com/doc/SI-506-Fall-2017-Final-Project-Gq7T7dbhSidk85W6JztzM
+You can also see them in the PDF file included in this assignment.
+
+* Do you plan to use one of the provided options? If so, which one? If not, how is your project plan different (briefly)?
+I chose the option 1.
+
+* What are the 2 REST APIs you will get data from? Name the services and provide links to the documentation.
+1. Facebook graph API
+2. iTunes search API
+
+
+* Fill out the following questions for TWO classes that you plan to define in your project:
+
+CLASS DEFINITION 1:
+- What will the class be called?
+  Post
+- What does one instance of the class represent?
+  One post that contains information in a facebook post
+- What input does the constructor of the class require?
+  Dictionary that has message, comments, likes key-value pairs.
+- What are at least 2 instance variables the class will have?
+  Message, Likes, Comments, words_cnt
+- What are at least 2 methods the class will have, and what do they do? Do they change instance variables? Do they return anything?
+  1. __str__ method will return the statement indicating the number of comments and the number of likes.
+  2. stopword method will return a list of stopwords in a message.
+- What will the __str__ method of this class return?
+  "This post has {number of comments} comments, {number of likes} likes, and {number of words} words in the message."
+
+CLASS DEFINITION 2:
+- What will the class be called?
+  Song
+- What does one instance of the class represent?
+  One song that contains information of the song
+- What input does the constructor of the class require?
+  Dictionary that contains artistNname, trackName, release Date.
+- What are at least 2 instance variables the class will have?
+  artist_name, track_title, duration, album_name
+- What are at least 2 methods the class will have, and what do they do? Do they change instance variables? Do they return anything?
+  1.__str__ method will return the statement indicating the name of artist, the name of song, release data.
+  2. word_cnt method will return the number of words in a track title.
+- What will the __str__ method of this class return?
+  "{track title} by {artist name} in {album name}"
+
+
+* What data are you going to sort with a key parameter? Why does this sort need a key parameter in the sorted function?
+  Song instances with a key parameter “trackTimeMillis”. This is because reorder songs from the longest to the shortest.
+
+* Fill out the following for TWO functions you will define in your project:
+
+FUNCTION 1:
+- What is the function called?
+  "facebook_request"
+- What input does the function require?
+  base url and parameters
+- What should the function return?
+  json object
+- Does the function get and cache data from an API, or do something different?
+  Yes, it will get and cache data.
+
+FUNCTION 2:
+- What is the function called?
+  "get_from_itunes"
+- What input does the function require?
+  artist name, type of song
+- What should the function return?
+  json object
+- Does the function get and cache data from an API, or do something different?
+  Yes, it will get and cache data
+
+* What data will be saved in the file you plan to create in your project? Will the file be a .CSV file? Or a .txt file?
+The created CSV file will contain the following things:
+1. The song title
+2. The artist of the song
+3. The length of the song
+4. The album the song is on
