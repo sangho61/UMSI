@@ -80,10 +80,11 @@ def loadData(filename):
 		return fullrec
 
 
-	#... load in first 15,000 rows of unlabeled data file.  You can load in more if you want later
+	#... load in the unlabeled data file. You can load in a subset for debugging purposes.
 	handle = open(filename, "r", encoding="utf8")
 	fullconts =handle.read().split("\n")
-	fullconts = [entry.split("\t")[1].replace("<br />", "") for entry in fullconts[1:15000]]
+	fullconts = [entry.split("\t")[1].replace("<br />", "") for entry in fullconts[1:(len(fullconts)-1)]]
+
 	#... apply simple tokenization (whitespace and lowercase)
 	fullconts = [" ".join(fullconts).lower()]
 
@@ -159,7 +160,7 @@ def loadData(filename):
 #.................................................................................
 #... compute sigmoid value
 #.................................................................................
-@jit
+@jit(nopython=True)
 def sigmoid(x):
 	return float(1)/(1+np.exp(-x))
 
@@ -208,7 +209,7 @@ def negativeSampleTable(train_data, uniqueWords, wordcounts, exp_power=0.75):
 	#... we do this for much faster lookup later on when sampling from this table.
 
 	cumulative_dict = #... fill in
-	table_size = 1e7
+	table_size = 1e8
 
 
 
@@ -239,6 +240,24 @@ def generateSamples(context_idx, num_samples):
 
 
 
+
+
+
+
+@jit(nopython=True)
+def performDescent(num_samples, learning_rate, center_token, sequence_chars,W1,W2,negative_indices):
+	# sequence chars was generated from the mapped sequence in the core code
+	nll_new = 0
+	for k in range(0, len(sequence_chars)):
+		#... (TASK) implement gradient descent. Find the current context token from sequence_chars
+		#... and the associated negative samples from negative_indices. Run gradient descent on both
+		#... weight matrices W1 and W2.
+		#... compute the total negative log-likelihood and store this in nll_new.
+		
+
+
+
+	return [nll_new]
 
 
 
@@ -316,17 +335,13 @@ def trainer(curW1 = None, curW2=None):
 			#... now propagate to each of the context outputs
 			for k in range(0, len(context_window)):
 
-				#... (TASK) Use context_window to find one-hot index of the current context token.
-				context_index = #... fill in
-
-
-
-				#... construct some negative samples
-				negative_indices = generateSamples(context_index, num_samples)
-
-				#... (TASK) You have your context token and your negative samples.
-				#... Perform gradient descent on both weight matrices.
-				#... Also keep track of the negative log-likelihood in variable nll.
+				mapped_context = [mapped_sequence[i+ctx] for ctx in context_window]
+				negative_indices = []
+				for q in mapped_context:
+					negative_indices += generateSamples(q, num_samples)
+				#... implement gradient descent
+				[nll_new] = performDescent(num_samples, learning_rate, center_token, mapped_context, W1,W2, negative_indices)
+				nll -= nll_new
 
 
 
