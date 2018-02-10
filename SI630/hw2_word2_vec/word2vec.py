@@ -9,7 +9,7 @@ import nltk
 from scipy.spatial.distance import cosine
 from nltk.corpus import stopwords
 from numba import jit
-
+from nltk.tokenize import word_tokenize
 
 
 #... (1) First load in the data source and tokenize into one-hot vectors.
@@ -97,9 +97,14 @@ def loadData(filename):
 	#... ignore stopwords in this process
 	#... for simplicity, you may use nltk.word_tokenize() to split fullconts.
 	#... keep track of the frequency counts of tokens in origcounts.
+	stopwords = set(stopwords.words('english'))
 	fullrec = []
+	for i in fullconts:
+		for k in word_tokenize(i):
+			if k not in stopwords:
+				fullrec.append(k)
 	min_count = 50
-	origcounts = Counter()
+	origcounts = Counter(fullrec)
 
 
 
@@ -109,13 +114,19 @@ def loadData(filename):
 	#... (TASK) populate array fullrec_filtered to include terms as-is that appeared at least min_count times
 	#... replace other terms with <UNK> token.
 	#... update frequency count of each token in dict wordcounts where: wordcounts[token] = freq(token)
-	fullrec_filtered = #... fill in
-
-
 	#... after filling in fullrec_filtered, replace the original fullrec with this one.
+
+	fullrec_filtered = []
+
+	for i in fullrec:
+		if origcounts[i] >= min_count:
+			fullrec_filtered.append(i)
+			wordcounts[i] += 1
+		else:
+			fullrec_filtered.append('<UNK>')
+			wordcounts['<UNK>'] += 1
+
 	fullrec = fullrec_filtered
-
-
 
 
 
@@ -124,24 +135,24 @@ def loadData(filename):
 	#... (TASK) sort the unique tokens into array uniqueWords
 	#... produce their one-hot indices in dict wordcodes where wordcodes[token] = onehot_index(token)
 	#... replace all word tokens in fullrec with their corresponding one-hot indices.
-	uniqueWords = #... fill in
-	wordcodes = #... fill in
-
-
-
-
+	uniqueWords = list(wordcounts.keys())
+	uniqueWords.sort()
+	wordcodes = []
+	for i in range(len(uniqueWords)):
+		a = np.zeros(len(wordcodes))
+		a[i] = 1
+		wordcodes.append(a)
 
 
 	#... close input file handle
 	handle.close()
 
 
-
 	#... store these objects for later.
 	#... for debugging, don't keep re-tokenizing same data in same way.
 	#... just reload the already-processed input data with pickles.
 	#... NOTE: you have to reload data from scratch if you change the min_count, tokenization or number of input rows
-	
+
 	pickle.dump(fullrec, open("w2v_fullrec.p","wb+"))
 	pickle.dump(wordcodes, open("w2v_wordcodes.p","wb+"))
 	pickle.dump(uniqueWords, open("w2v_uniqueWords.p","wb+"))
@@ -163,11 +174,6 @@ def loadData(filename):
 @jit(nopython=True)
 def sigmoid(x):
 	return float(1)/(1+np.exp(-x))
-
-
-
-
-
 
 
 
@@ -253,7 +259,7 @@ def performDescent(num_samples, learning_rate, center_token, sequence_chars,W1,W
 		#... and the associated negative samples from negative_indices. Run gradient descent on both
 		#... weight matrices W1 and W2.
 		#... compute the total negative log-likelihood and store this in nll_new.
-		
+
 
 
 
@@ -318,7 +324,7 @@ def trainer(curW1 = None, curW2=None):
 				print ("Progress: ", round(prevmark+0.1,1))
 				prevmark += 0.1
 			if iternum%10000==0:
-				print ("Negative likelihood: ", nll)				
+				print ("Negative likelihood: ", nll)
 				nll_results.append(nll)
 				nll = 0
 
@@ -564,5 +570,3 @@ if __name__ == '__main__':
 	else:
 		print ("Please provide a valid input filename")
 		sys.exit()
-
-
